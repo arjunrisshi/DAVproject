@@ -1,0 +1,420 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EDM Framework - Hybrid Model Architectures & XAI</title>
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 font-sans">
+
+  <!-- Header -->
+  <header class="bg-indigo-700 text-white shadow-md">
+    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+      <h1 class="text-2xl font-bold tracking-wide">EDM Framework Dashboard</h1>
+      <div class="flex items-center gap-3">
+        <button onclick="openAddStudentModal()" class="bg-indigo-500 hover:bg-indigo-400 text-white font-bold text-xs px-4 py-2 rounded-lg border border-indigo-400/40 transition">
+          + Add Student
+        </button>
+        <span class="bg-indigo-800 text-indigo-200 text-xs px-3 py-1 rounded-full font-medium border border-indigo-500/30">
+          XAI Analytics Active
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <main class="max-w-7xl mx-auto px-6 py-8 space-y-8">
+
+    <!-- Top Dashboard Grid -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+      <!-- Left Column: Cohort Overview & Student Directory -->
+      <div class="lg:col-span-4 space-y-6">
+        
+        <!-- Cohort Overview Card -->
+        <div class="bg-white p-5 rounded-xl shadow-sm border border-slate-200">
+          <h2 class="text-lg font-bold text-slate-800 mb-3">Cohort Overview</h2>
+          <div class="grid grid-cols-2 gap-3 text-center">
+            <div class="bg-indigo-50 p-3 rounded-lg border border-indigo-100">
+              <span class="text-xs text-indigo-600 font-semibold uppercase tracking-wider block">Total Students</span>
+              <span id="stat-total" class="text-2xl font-black text-indigo-900">--</span>
+            </div>
+            <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+              <span class="text-xs text-red-600 font-semibold uppercase tracking-wider block">High Risk</span>
+              <span id="stat-high" class="text-2xl font-black text-red-700">--</span>
+            </div>
+            <div class="bg-amber-50 p-3 rounded-lg border border-amber-100">
+              <span class="text-xs text-amber-600 font-semibold uppercase tracking-wider block">Medium Risk</span>
+              <span id="stat-medium" class="text-2xl font-black text-amber-700">--</span>
+            </div>
+            <div class="bg-emerald-50 p-3 rounded-lg border border-emerald-100">
+              <span class="text-xs text-emerald-600 font-semibold uppercase tracking-wider block">Low Risk</span>
+              <span id="stat-low" class="text-2xl font-black text-emerald-700">--</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Student Directory List -->
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-5">
+          <div class="flex justify-between items-center mb-3">
+            <h2 class="text-lg font-bold text-slate-800">Student Directory</h2>
+            <button onclick="openAddStudentModal()" class="text-indigo-600 hover:text-indigo-800 text-xs font-bold">+ New</button>
+          </div>
+          <div id="student-list" class="space-y-2 max-h-[420px] overflow-y-auto pr-1">
+            <div class="text-sm text-slate-500 py-4 text-center">Loading student records...</div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Right Column: Student Analysis Panel (XAI & Interventions) -->
+      <div class="lg:col-span-8 space-y-6">
+        
+        <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+          <div class="flex justify-between items-start mb-4 border-b border-slate-100 pb-4">
+            <div>
+              <h2 id="active-student-title" class="text-2xl font-bold text-slate-900">Select a Student</h2>
+              <p class="text-xs text-slate-500 mt-0.5">Predicted Academic Attrition Risk & SHAP Feature Analysis</p>
+            </div>
+            <div class="text-right">
+              <div id="active-risk-badge" class="text-3xl font-black text-slate-300">--</div>
+              <span id="active-base-risk" class="text-xs text-slate-400 block mt-1">Base Risk: --</span>
+            </div>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- SHAP Impact Breakdown -->
+            <div>
+              <h3 class="text-sm font-bold text-slate-700 mb-3 uppercase tracking-wider">SHAP Feature Impact Breakdown</h3>
+              <div id="shap-bars" class="space-y-3">
+                <p class="text-sm text-slate-400 italic">Select a student from the directory to inspect SHAP impact scores.</p>
+              </div>
+            </div>
+
+            <!-- Prescriptive Interventions -->
+            <div class="bg-slate-50 p-4 rounded-lg border border-slate-200/80">
+              <h3 class="text-sm font-bold text-slate-800 mb-2 uppercase tracking-wider">Prescriptive Interventions</h3>
+              <div id="intervention-box" class="space-y-3 text-sm">
+                <p class="text-slate-500 italic">No student currently selected.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- All 5 Hybrid Model Categories Benchmarking Table -->
+    <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+      <div class="mb-4">
+        <h2 class="text-xl font-bold text-slate-800">Hybrid Model Architectural Benchmarking</h2>
+        <p class="text-xs text-slate-500 mt-1">
+          Comparing Baselines vs. all 5 Hybrid Categories (Feature, Algorithm, Statistical, DL, Optimization)
+        </p>
+      </div>
+
+      <div class="overflow-x-auto">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="bg-slate-50 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+              <th class="p-3">Model Architecture</th>
+              <th class="p-3">Category</th>
+              <th class="p-3">Accuracy</th>
+              <th class="p-3">Precision</th>
+              <th class="p-3">Recall</th>
+              <th class="p-3">F1-Score</th>
+              <th class="p-3">ROC-AUC</th>
+            </tr>
+          </thead>
+          <tbody id="model-comparison-body" class="text-sm divide-y divide-slate-100">
+            <tr>
+              <td colspan="7" class="p-4 text-center text-slate-400">Loading benchmark metrics...</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </main>
+
+  <!-- Add Student Modal -->
+  <div id="student-modal" class="hidden fixed inset-0 bg-slate-900/50 backdrop-blur-sm flex items-center justify-center p-4 z-50">
+    <div class="bg-white rounded-xl shadow-xl max-w-lg w-full p-6 space-y-4">
+      <div class="flex justify-between items-center border-b pb-3">
+        <h3 class="text-lg font-bold text-slate-800">Add New Student Record</h3>
+        <button onclick="closeAddStudentModal()" class="text-slate-400 hover:text-slate-600 font-bold">&times;</button>
+      </div>
+
+      <form id="add-student-form" onsubmit="handleAddStudent(event)" class="space-y-3 text-xs">
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Student ID</label>
+            <input type="text" id="m_student_id" required placeholder="STU-2001" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Full Name</label>
+            <input type="text" id="m_name" required placeholder="John Doe" class="w-full border rounded p-2 text-sm">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Email</label>
+            <input type="email" id="m_email" required placeholder="john@univ.edu" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Major</label>
+            <input type="text" id="m_major" required placeholder="Computer Science" class="w-full border rounded p-2 text-sm">
+          </div>
+        </div>
+
+        <hr class="my-2">
+
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Attendance Rate (%)</label>
+            <input type="number" step="0.1" id="m_att" min="0" max="100" required placeholder="75.0" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">LMS Engagement Score</label>
+            <input type="number" step="0.1" id="m_lms" min="0" max="100" required placeholder="60.0" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Assignment Completion (%)</label>
+            <input type="number" step="0.1" id="m_assign" min="0" max="100" required placeholder="80.0" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Midterm Score (%)</label>
+            <input type="number" step="0.1" id="m_mid" min="0" max="100" required placeholder="55.0" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Forum Posts (Count)</label>
+            <input type="number" id="m_forum" min="0" required placeholder="3" class="w-full border rounded p-2 text-sm">
+          </div>
+          <div>
+            <label class="block font-bold text-slate-700 mb-1">Quiz Average (%)</label>
+            <input type="number" step="0.1" id="m_quiz" min="0" max="100" required placeholder="65.0" class="w-full border rounded p-2 text-sm">
+          </div>
+        </div>
+
+        <div class="flex justify-end gap-2 pt-4">
+          <button type="button" onclick="closeAddStudentModal()" class="px-4 py-2 border rounded text-slate-600 font-bold">Cancel</button>
+          <button type="submit" class="px-4 py-2 bg-indigo-600 text-white rounded font-bold hover:bg-indigo-500">Evaluate & Add Student</button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- JavaScript Integration -->
+  <script>
+    let activeStudentId = null;
+
+    function openAddStudentModal() {
+      document.getElementById('student-modal').classList.remove('hidden');
+    }
+
+    function closeAddStudentModal() {
+      document.getElementById('student-modal').classList.add('hidden');
+    }
+
+    async function handleAddStudent(event) {
+      event.preventDefault();
+
+      const studentData = {
+        student_id: document.getElementById('m_student_id').value,
+        name: document.getElementById('m_name').value,
+        email: document.getElementById('m_email').value,
+        major: document.getElementById('m_major').value,
+        cohort_year: 2026,
+        attendance_rate: parseFloat(document.getElementById('m_att').value),
+        lms_engagement_score: parseFloat(document.getElementById('m_lms').value),
+        assignment_completion: parseFloat(document.getElementById('m_assign').value),
+        midterm_score: parseFloat(document.getElementById('m_mid').value),
+        forum_participation: parseInt(document.getElementById('m_forum').value),
+        quiz_average: parseFloat(document.getElementById('m_quiz').value)
+      };
+
+      try {
+        const res = await fetch('/api/v1/students/', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(studentData)
+        });
+
+        if (!res.ok) {
+          const err = await res.json();
+          alert('Error adding student: ' + (err.detail || 'Failed'));
+          return;
+        }
+
+        const newStudent = await res.json();
+        closeAddStudentModal();
+        document.getElementById('add-student-form').reset();
+        
+        // Refresh stats and directory, and auto-select new student
+        await loadSummary();
+        await loadStudentList();
+        selectStudent(newStudent.student_id);
+
+      } catch (err) {
+        console.error("Failed to add student:", err);
+        alert('Network or server error while adding student.');
+      }
+    }
+
+    async function loadSummary() {
+      try {
+        const res = await fetch('/api/v1/analytics/summary');
+        const data = await res.json();
+        document.getElementById('stat-total').innerText = data.total_students;
+        document.getElementById('stat-high').innerText = data.risk_distribution.high_risk;
+        document.getElementById('stat-medium').innerText = data.risk_distribution.medium_risk;
+        document.getElementById('stat-low').innerText = data.risk_distribution.low_risk;
+      } catch (e) {
+        console.error("Error loading summary:", e);
+      }
+    }
+
+    async function loadStudentList() {
+      try {
+        const res = await fetch('/api/v1/students/');
+        const students = await res.json();
+        const container = document.getElementById('student-list');
+
+        if (students.length === 0) {
+          container.innerHTML = `<div class="text-sm text-slate-400 p-3">No students found in database.</div>`;
+          return;
+        }
+
+        container.innerHTML = students.map(s => {
+          const riskColor = s.risk_level === 'High' ? 'bg-red-100 text-red-700' :
+                            s.risk_level === 'Medium' ? 'bg-amber-100 text-amber-700' : 'bg-emerald-100 text-emerald-700';
+          return `
+            <div onclick="selectStudent('${s.student_id}')" 
+                 class="p-3 rounded-lg border border-slate-100 hover:border-indigo-300 hover:bg-indigo-50/50 cursor-pointer transition flex justify-between items-center">
+              <div>
+                <div class="font-bold text-slate-800 text-sm">${s.name}</div>
+                <div class="text-xs text-slate-400">${s.student_id} • ${s.major}</div>
+              </div>
+              <span class="text-xs font-bold px-2.5 py-1 rounded-md ${riskColor}">
+                ${s.risk_level} (${Math.round((s.risk_score || 0) * 100)}%)
+              </span>
+            </div>
+          `;
+        }).join('');
+
+        if (students.length > 0 && !activeStudentId) {
+          selectStudent(students[0].student_id);
+        }
+      } catch (e) {
+        console.error("Error loading student directory:", e);
+      }
+    }
+
+    async function selectStudent(studentId) {
+      activeStudentId = studentId;
+
+      try {
+        const xaiRes = await fetch(`/api/v1/students/${studentId}/xai-explain`);
+        const xaiData = await xaiRes.json();
+
+        const recRes = await fetch(`/api/v1/students/${studentId}/recommendations`);
+        const recData = await recRes.json();
+
+        document.getElementById('active-student-title').innerText = `${studentId} Analysis`;
+        
+        const riskColorClass = xaiData.risk_level === 'High' ? 'text-red-600' :
+                               xaiData.risk_level === 'Medium' ? 'text-amber-600' : 'text-emerald-600';
+        
+        document.getElementById('active-risk-badge').className = `text-3xl font-black ${riskColorClass}`;
+        document.getElementById('active-risk-badge').innerText = `${Math.round(xaiData.risk_score * 100)}% Risk`;
+        document.getElementById('active-base-risk').innerText = `Base Risk: ${xaiData.base_value}`;
+
+        const shapContainer = document.getElementById('shap-bars');
+        shapContainer.innerHTML = xaiData.top_factors.map(f => {
+          const isElevate = f.impact > 0;
+          const barColor = isElevate ? 'bg-red-500' : 'bg-emerald-500';
+          const impactSign = isElevate ? `+${f.impact}` : `${f.impact}`;
+
+          return `
+            <div>
+              <div class="flex justify-between text-xs mb-1">
+                <span class="font-semibold text-slate-700">${f.description}</span>
+                <span class="font-mono font-bold ${isElevate ? 'text-red-600' : 'text-emerald-600'}">${impactSign}</span>
+              </div>
+              <div class="w-full bg-slate-100 h-2 rounded-full overflow-hidden">
+                <div class="${barColor} h-2 rounded-full" style="width: ${Math.min(Math.abs(f.impact) * 40, 100)}%"></div>
+              </div>
+            </div>
+          `;
+        }).join('');
+
+        const intContainer = document.getElementById('intervention-box');
+        intContainer.innerHTML = `
+          <div>
+            <span class="text-xs text-slate-500 font-semibold block">Primary Risk Driver</span>
+            <span class="font-bold text-slate-800">${recData.primary_risk_driver}</span>
+          </div>
+          <div>
+            <span class="text-xs text-slate-500 font-semibold block mb-1">Action Plan:</span>
+            <ul class="list-disc list-inside space-y-1 text-slate-700">
+              ${recData.action_plan.map(plan => `<li>${plan}</li>`).join('')}
+            </ul>
+          </div>
+          <div>
+            <span class="text-xs text-slate-500 font-semibold block mb-1">Recommended Resources:</span>
+            <div class="flex flex-wrap gap-1.5 mt-1">
+              ${recData.suggested_resources.map(res => `
+                <span class="bg-indigo-50 text-indigo-700 text-xs px-2.5 py-1 rounded-md border border-indigo-100 font-medium">
+                  ${res}
+                </span>
+              `).join('')}
+            </div>
+          </div>
+        `;
+
+      } catch (e) {
+        console.error("Error loading student analysis:", e);
+      }
+    }
+
+    async function loadModelComparison() {
+      try {
+        const res = await fetch('/api/v1/analytics/model-comparison');
+        const data = await res.json();
+
+        const tbody = document.getElementById('model-comparison-body');
+        tbody.innerHTML = data.map(m => {
+          const isHybrid = m.model_name.includes('Proposed Hybrid');
+          return `
+            <tr class="${isHybrid ? 'bg-indigo-50/80 font-bold text-indigo-950 border-l-4 border-indigo-600' : 'text-slate-700'}">
+              <td class="p-3 flex items-center gap-2">
+                ${isHybrid ? '<span class="bg-indigo-600 text-white text-[10px] px-2 py-0.5 rounded-full font-extrabold uppercase">PROPOSED</span>' : ''}
+                ${m.model_name}
+              </td>
+              <td class="p-3"><span class="bg-slate-100 text-slate-700 px-2 py-0.5 rounded text-xs">${m.category}</span></td>
+              <td class="p-3">${(m.accuracy * 100).toFixed(1)}%</td>
+              <td class="p-3">${(m.precision * 100).toFixed(1)}%</td>
+              <td class="p-3">${(m.recall * 100).toFixed(1)}%</td>
+              <td class="p-3">${(m.f1 * 100).toFixed(1)}%</td>
+              <td class="p-3">${m.roc_auc.toFixed(3)}</td>
+            </tr>
+          `;
+        }).join('');
+      } catch (e) {
+        console.error("Error loading model benchmark metrics:", e);
+      }
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      loadSummary();
+      loadStudentList();
+      loadModelComparison();
+    });
+  </script>
+</body>
+</html>
